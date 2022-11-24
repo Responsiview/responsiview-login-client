@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { getRedirectResult } from "firebase/auth";
 
@@ -8,22 +8,33 @@ import { provider, auth, googleSignIn } from "./service/firebase";
 import { COLOR } from "./config/constants";
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   useEffect(() => {
     (async () => {
       try {
-        const result = await getRedirectResult(auth);
-        if (result) {
-          console.log(result);
-          window.location.replace(
-            `responsiview://result=success/userEmail=${result.user.email}`,
-          );
+        const redirectResult = await getRedirectResult(auth);
+
+        setIsLoggedIn(redirectResult);
+
+        if (redirectResult) {
+          const data = JSON.stringify({
+            result: "success",
+            userEmail: redirectResult.user.email,
+          });
+
+          window.location.replace(`responsiview://${data}`);
         } else {
           googleSignIn(auth, provider);
         }
       } catch (error) {
-        window.location.replace(
-          `responsiview://result=fail/code=${error.code}/message=${error.message}`,
-        );
+        const data = JSON.stringify({
+          result: "fail",
+          code: error.code,
+          message: error.message,
+        });
+
+        window.location.replace(`responsiview://${data}`);
       }
     })();
   }, []);
@@ -32,8 +43,12 @@ export default function App() {
     <>
       <Global />
       <Container>
-        <Image src={Logo}></Image>
-        <Text>Responsiview 앱으로 이동 중입니다.</Text>
+        {isLoggedIn && (
+          <>
+            <Image src={Logo}></Image>
+            <Text>Responsiview 앱으로 이동 중입니다.</Text>
+          </>
+        )}
       </Container>
     </>
   );
