@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import styled, { createGlobalStyle } from "styled-components";
 import { getRedirectResult } from "firebase/auth";
 
-import Logo from "./assets/images/responsiview-logo.png";
 import { provider, auth, googleSignIn } from "./service/firebase";
 
 import { COLOR } from "./config/constants";
+import Logo from "./assets/images/responsiview-logo.png";
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -23,7 +23,7 @@ export default function App() {
             userEmail: redirectResult.user.email,
           });
 
-          window.location.replace(`responsiview://${data}`);
+          window.location.assign(`responsiview:${data}`);
         } else {
           googleSignIn(auth, provider);
         }
@@ -34,7 +34,7 @@ export default function App() {
           message: error.message,
         });
 
-        window.location.replace(`responsiview://${data}`);
+        window.location.assign(`responsiview://${data}`);
       }
     })();
   }, []);
